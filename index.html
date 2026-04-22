@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoWaste Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10B981;
+            --primary-hover: #059669;
+            --bg-color: #F3F4F6;
+            --surface: #FFFFFF;
+            --text-main: #1F2937;
+            --text-light: #6B7280;
+            --danger: #EF4444;
+            --success: #10B981;
+            --border: #E5E7EB;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 2rem 1rem;
+            flex-grow: 1;
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            margin-bottom: 1.5rem;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--text-light);
+        }
+
+        .btn-secondary:hover {
+            background: #4B5563;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            width: auto;
+            padding: 0.5rem 1rem;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="file"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            justify-content: center;
+        }
+
+        .tab {
+            padding: 0.5rem 1.5rem;
+            border-radius: 99px;
+            background: white;
+            color: var(--text-light);
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            font-size: 0.875rem;
+        }
+
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .task-item {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .task-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 99px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-pending {
+            background: #FEF3C7;
+            color: #D97706;
+        }
+
+        .status-accepted {
+            background: #DBEAFE;
+            color: #2563EB;
+        }
+
+        .status-completed {
+            background: #D1FAE5;
+            color: #059669;
+        }
+
+        .status-archived {
+            background: #E5E7EB;
+            color: #374151;
+        }
+
+        .loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .alert-success {
+            background: #D1FAE5;
+            color: #059669;
+        }
+
+        .alert-danger {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+
+        .rating-stars {
+            display: flex;
+            gap: 0.5rem;
+            font-size: 2rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+            cursor: pointer;
+        }
+
+        .star {
+            color: #D1D5DB;
+            transition: 0.2s;
+        }
+
+        .star.selected,
+        .star:hover {
+            color: #F59E0B;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>EcoWaste</h1>
+        <button id="logoutBtn" class="btn btn-danger hidden" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="container">
+
+        <!-- ======================= AUTH VIEW ======================= -->
+        <div id="authView" class="card">
+            <div
+                style="text-align: center; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border);">
+                <h2 style="font-size: 1.8rem; color: var(--primary); margin-bottom: 0.5rem;">🌍 Smart Waste Management
+                </h2>
+                <p style="color: var(--text-light); font-size: 0.95rem;">Join our community to report, verify, and clean
+                    waste together.</p>
+            </div>
+
+            <h2 id="authTitle" style="text-align: center; font-size: 1.25rem;">Login</h2>
+            <div class="nav-tabs" style="margin-bottom: 1.5rem;">
+                <div class="tab active" id="tabLogin" onclick="switchAuthMode('login')">Login</div>
+                <div class="tab" id="tabRegister" onclick="switchAuthMode('register')">Register</div>
+            </div>
+            <form id="authForm" onsubmit="handleAuth(event)">
+                <input type="text" id="authUsername" placeholder="Username" required>
+                <input type="password" id="authPassword" placeholder="Password" required>
+                <div id="authRoleContainer" class="hidden" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="role-btn active" onclick="selectAuthRole('user')" id="roleBtnUser"
+                        style="flex: 1; padding: 1rem; border: 2px solid var(--primary); border-radius: 8px; text-align: center; cursor: pointer; font-weight: bold; color: var(--primary);">
+                        👤 User</div>
+                    <div class="role-btn" onclick="selectAuthRole('cleaner')" id="roleBtnCleaner"
+                        style="flex: 1; padding: 1rem; border: 2px solid var(--border); border-radius: 8px; text-align: center; cursor: pointer; font-weight: bold; color: var(--text-light);">
+                        🧹 Cleaner</div>
+                </div>
+                <input type="hidden" id="authRole" value="user">
+                <button type="submit" class="btn" id="authBtn">Login</button>
+            </form>
+        </div>
+
+        <!-- ======================= MAIN APP ======================= -->
+        <div id="mainApp" class="hidden">
+            <h2 style="text-align:center; margin-bottom:2rem;" id="welcomeText"></h2>
+
+            <!-- USER VIEW -->
+            <div id="userView" class="hidden">
+                <div class="card">
+                    <h2>Report Waste</h2>
+                    <form id="reportForm" onsubmit="handleReport(event)">
+                        <input type="file" id="beforeImage" accept="image/*" required>
+                        <p id="userLocationStatus"
+                            style="font-size: 0.875rem; color: var(--text-light); margin-bottom: 1rem;">📍 Location: Not
+                            captured yet</p>
+                        <button type="button" class="btn btn-secondary" onclick="getUserLocation()"
+                            style="margin-bottom: 1rem;">Get Current Location</button>
+                        <input type="hidden" id="userLat">
+                        <input type="hidden" id="userLon">
+                        <button type="submit" class="btn" id="reportBtn">Submit Report</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h2>My Reported Tasks</h2>
+                    <button class="btn btn-secondary" onclick="loadUserTasks()" style="margin-bottom: 1rem;">Refresh
+                        Tasks</button>
+                    <div id="userTasksList"></div>
+                </div>
+            </div>
+
+            <!-- CLEANER VIEW -->
+            <div id="cleanerView" class="hidden">
+                <div class="card"
+                    style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h2 style="margin-bottom: 0.5rem;">My Profile</h2>
+                        <p style="color: var(--text-light);">Complete tasks to earn ratings!</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 2rem; font-weight: bold; color: #F59E0B;">
+                            ⭐ <span id="cleanerAvgRating">0.0</span>
+                        </div>
+                        <p style="font-size: 0.875rem; color: var(--text-light);"><span
+                                id="cleanerTotalReviews">0</span> Reviews</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Available & Accepted Tasks</h2>
+                    <button class="btn btn-secondary" onclick="loadCleanerTasks()" style="margin-bottom: 1rem;">Refresh
+                        Tasks</button>
+                    <div id="cleanerTasksList"></div>
+                </div>
+
+                <div class="card hidden" id="completeTaskFormCard">
+                    <h2>Complete Task</h2>
+                    <p id="activeTaskLabel" style="margin-bottom: 1rem; font-weight: bold;"></p>
+                    <form id="completeForm" onsubmit="handleVerify(event)">
+                        <input type="hidden" id="activeTaskId">
+                        <div
+                            style="background-color: #FEF3C7; color: #D97706; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #FCD34D;">
+                            <strong>📸 Important:</strong> Please take the image with the exact same angle and distance
+                            as the original photo. This is required for our AI to accurately verify your cleaning work!
+                        </div>
+                        <input type="file" id="afterImage" accept="image/*" required>
+                        <p id="cleanerLocationStatus"
+                            style="font-size: 0.875rem; color: var(--text-light); margin-bottom: 1rem;">📍 Location: Not
+                            captured yet</p>
+                        <button type="button" class="btn btn-secondary" onclick="getCleanerLocation()"
+                            style="margin-bottom: 1rem;">Get Current Location</button>
+                        <input type="hidden" id="cleanerLat">
+                        <input type="hidden" id="cleanerLon">
+                        <button type="submit" class="btn" id="verifyBtn">Verify Cleaning</button>
+
+                        <div id="verifyResult" class="hidden"
+                            style="margin-top: 1rem; padding: 1rem; border-radius: 8px; text-align: center;"></div>
+                        <button type="button" class="btn hidden" id="finalSubmitBtn" onclick="submitFinalTask()"
+                            style="background: var(--success); margin-top: 1rem;">Submit Task</button>
+
+                        <button type="button" class="btn btn-secondary" onclick="cancelComplete()">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================= RATING MODAL ======================= -->
+        <div id="ratingView" class="card hidden"
+            style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; max-width: 400px; width: 90%;">
+            <h2 style="text-align: center;">Rate the Cleaner</h2>
+            <p id="ratingResultMsg" style="text-align: center; margin-bottom: 1rem; font-weight: bold;"></p>
+            <div class="rating-stars" id="starContainer">
+                <span class="star" data-val="1">★</span>
+                <span class="star" data-val="2">★</span>
+                <span class="star" data-val="3">★</span>
+                <span class="star" data-val="4">★</span>
+                <span class="star" data-val="5">★</span>
+            </div>
+            <input type="hidden" id="ratingTaskId">
+            <input type="hidden" id="ratingValue" value="5">
+            <textarea id="ratingComment" placeholder="Leave a comment (optional)..."></textarea>
+            <button class="btn" onclick="submitRating()">Submit Rating</button>
+        </div>
+        <div id="overlay" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90;">
+        </div>
+
+    </div>
+
+    <script>
+        // State
+        let currentUser = null; // { username, role }
+        let authMode = 'login';
+        const BASE_URL = "https://waste-management-full-backend-2.onrender.com";
+
+        // ================= AUTH =================
+        function selectAuthRole(role) {
+            document.getElementById('authRole').value = role;
+            const btnUser = document.getElementById('roleBtnUser');
+            const btnCleaner = document.getElementById('roleBtnCleaner');
+
+            if (role === 'user') {
+                btnUser.style.borderColor = 'var(--primary)';
+                btnUser.style.color = 'var(--primary)';
+                btnCleaner.style.borderColor = 'var(--border)';
+                btnCleaner.style.color = 'var(--text-light)';
+            } else {
+                btnCleaner.style.borderColor = 'var(--primary)';
+                btnCleaner.style.color = 'var(--primary)';
+                btnUser.style.borderColor = 'var(--border)';
+                btnUser.style.color = 'var(--text-light)';
+            }
+        }
+
+        function switchAuthMode(mode) {
+            authMode = mode;
+            document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
+            document.getElementById('tabRegister').classList.toggle('active', mode === 'register');
+            document.getElementById('authTitle').innerText = mode === 'login' ? 'Login' : 'Create Account';
+            document.getElementById('authBtn').innerText = mode === 'login' ? 'Login' : 'Register';
+
+            if (mode === 'register') {
+                document.getElementById('authRoleContainer').classList.remove('hidden');
+            } else {
+                document.getElementById('authRoleContainer').classList.add('hidden');
+            }
+        }
+
+        async function handleAuth(e) {
+            e.preventDefault();
+            const username = document.getElementById('authUsername').value;
+            const password = document.getElementById('authPassword').value;
+            const role = document.getElementById('authRole').value;
+
+            const endpoint = authMode === 'login' ? BASE_URL + '/api/login' : BASE_URL + '/api/register';
+            const payload = { username, password };
+            if (authMode === 'register') payload.role = role;
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    alert(data.error);
+                    return;
+                }
+
+                if (authMode === 'register') {
+                    alert('Account created! Please login.');
+                    switchAuthMode('login');
+                } else {
+                    currentUser = { username: data.username, role: data.role };
+                    showApp();
+                }
+            } catch (e) {
+                alert("Error connecting to server.");
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('authView').classList.remove('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('logoutBtn').classList.add('hidden');
+            document.getElementById('authForm').reset();
+        }
+
+        function showApp() {
+            document.getElementById('authView').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            document.getElementById('logoutBtn').classList.remove('hidden');
+
+            document.getElementById('welcomeText').innerText = `Welcome, ${currentUser.username} (${currentUser.role})!`;
+
+            if (currentUser.role === 'user') {
+                document.getElementById('userView').classList.remove('hidden');
+                document.getElementById('cleanerView').classList.add('hidden');
+                loadUserTasks();
+            } else {
+                document.getElementById('userView').classList.add('hidden');
+                document.getElementById('cleanerView').classList.remove('hidden');
+                loadCleanerTasks();
+            }
+        }
+
+        // ================= LOCATION =================
+        function getUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        document.getElementById('userLat').value = pos.coords.latitude;
+                        document.getElementById('userLon').value = pos.coords.longitude;
+                        document.getElementById('userLocationStatus').innerText = `📍 Captured: ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
+                        document.getElementById('userLocationStatus').style.color = "var(--success)";
+                    },
+                    (err) => alert("Location access denied or failed.")
+                );
+            }
+        }
+
+        function getCleanerLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        document.getElementById('cleanerLat').value = pos.coords.latitude;
+                        document.getElementById('cleanerLon').value = pos.coords.longitude;
+                        document.getElementById('cleanerLocationStatus').innerText = `📍 Captured: ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
+                        document.getElementById('cleanerLocationStatus').style.color = "var(--success)";
+                    },
+                    (err) => alert("Location access denied or failed.")
+                );
+            }
+        }
+
+        // ================= USER FLOW =================
+        async function handleReport(e) {
+            e.preventDefault();
+            const lat = document.getElementById('userLat').value;
+            const lon = document.getElementById('userLon').value;
+            const fileInput = document.getElementById('beforeImage');
+
+            if (!lat || !lon) {
+                alert("Please get your current location first!");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('user_id', currentUser.username);
+            formData.append('user_lat', lat);
+            formData.append('user_lon', lon);
+            formData.append('before_image', fileInput.files[0]);
+
+            document.getElementById('reportBtn').classList.add('loading');
+            document.getElementById('reportBtn').innerText = 'Uploading...';
+
+            try {
+                const res = await fetch(BASE_URL + '/api/report', { method: 'POST', body: formData });
+                const data = await res.json();
+
+                if (res.status === 400 || data.error) {
+                    alert(data.error || "Error submitting report.");
+                    return;
+                }
+
+                alert(data.message || "Reported!");
+                document.getElementById('reportForm').reset();
+                document.getElementById('userLocationStatus').innerText = "📍 Location: Not captured yet";
+                document.getElementById('userLocationStatus').style.color = "var(--text-light)";
+                document.getElementById('userLat').value = "";
+                document.getElementById('userLon').value = "";
+                loadUserTasks();
+            } catch (err) {
+                alert("Error submitting report.");
+            } finally {
+                document.getElementById('reportBtn').classList.remove('loading');
+                document.getElementById('reportBtn').innerText = 'Submit Report';
+            }
+        }
+
+        async function loadUserTasks() {
+            const res = await fetch(BASE_URL + `/api/tasks?username=${encodeURIComponent(currentUser.username)}&role=${encodeURIComponent(currentUser.role)}`);
+            const data = await res.json();
+            const list = document.getElementById('userTasksList');
+            list.innerHTML = '';
+
+            Object.values(data.tasks).forEach(t => {
+                const div = document.createElement('div');
+                div.className = 'task-item';
+
+                let resultHtml = '';
+                if (t.status === 'completed') {
+                    const alertClass = t.verified ? 'alert-success' : 'alert-danger';
+                    const msg = t.verified ? 'Cleaning Verified ✅' : 'Invalid Submission ❌';
+                    resultHtml = `
+                        <div class="alert ${alertClass}" style="margin-top:1rem;">${msg}</div>
+                        <p style="font-size:0.8rem; color:#666;">Diff: ${t.difference?.toFixed(2)}, Dist: ${t.distance?.toFixed(0)}m</p>
+                        <button class="btn" style="margin-top:0.5rem" onclick="openRating('${t.task_id}', ${t.verified})">Rate Cleaner & Clear Data</button>
+                    `;
+                } else if (t.status === 'archived') {
+                    resultHtml = `
+                        <div class="alert alert-success" style="margin-top:1rem; padding: 0.5rem;">Task Archived & Rated 🌟</div>
+                    `;
+                }
+
+                div.innerHTML = `
+                    <strong>Task ID:</strong> ${t.task_id.slice(0, 8)}...<br>
+                    <span class="task-status status-${t.status}">${t.status.toUpperCase()}</span>
+                    ${resultHtml}
+                `;
+                list.appendChild(div);
+            });
+
+            if (list.innerHTML === '') list.innerHTML = '<p>No tasks found.</p>';
+        }
+
+        // ================= RATING FLOW =================
+        function openRating(taskId, verified) {
+            document.getElementById('ratingTaskId').value = taskId;
+            const msg = document.getElementById('ratingResultMsg');
+            msg.innerText = verified ? "Cleaning Verified ✅" : "Invalid Submission ❌";
+            msg.style.color = verified ? "var(--success)" : "var(--danger)";
+
+            document.getElementById('ratingView').classList.remove('hidden');
+            document.getElementById('overlay').classList.remove('hidden');
+
+            const stars = document.querySelectorAll('.star');
+            stars.forEach(s => {
+                s.onclick = () => {
+                    const val = s.getAttribute('data-val');
+                    document.getElementById('ratingValue').value = val;
+                    stars.forEach(st => {
+                        if (st.getAttribute('data-val') <= val) st.classList.add('selected');
+                        else st.classList.remove('selected');
+                    });
+                };
+            });
+            stars[4].onclick();
+        }
+
+        async function submitRating() {
+            const taskId = document.getElementById('ratingTaskId').value;
+            const rating = document.getElementById('ratingValue').value;
+            const comment = document.getElementById('ratingComment').value;
+
+            try {
+                const res = await fetch(BASE_URL + '/api/rate/' + taskId, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ rating, comment })
+                });
+                const data = await res.json();
+                alert(data.message);
+
+                document.getElementById('ratingView').classList.add('hidden');
+                document.getElementById('overlay').classList.add('hidden');
+                loadUserTasks();
+            } catch (e) {
+                alert("Error submitting rating.");
+            }
+        }
+
+        // ================= CLEANER FLOW =================
+        async function loadCleanerTasks() {
+            try {
+                const statsRes = await fetch(BASE_URL + `/api/cleaner/stats/${encodeURIComponent(currentUser.username)}`);
+                const statsData = await statsRes.json();
+                document.getElementById('cleanerAvgRating').innerText = statsData.average_rating.toFixed(1);
+                document.getElementById('cleanerTotalReviews').innerText = statsData.total_reviews;
+            } catch (e) { console.error("Could not load stats"); }
+
+            const res = await fetch(BASE_URL + `/api/tasks?username=${encodeURIComponent(currentUser.username)}&role=${encodeURIComponent(currentUser.role)}`);
+            const data = await res.json();
+            const list = document.getElementById('cleanerTasksList');
+            list.innerHTML = '';
+
+            Object.values(data.tasks).forEach(t => {
+                const div = document.createElement('div');
+                div.className = 'task-item';
+
+                let btnHtml = '';
+                if (t.status === 'pending') {
+                    btnHtml = `<button class="btn" onclick="acceptTask('${t.task_id}')">Accept Task</button>`;
+                } else if (t.status === 'accepted') {
+                    btnHtml = `<button class="btn btn-secondary" onclick="showCompleteForm('${t.task_id}')">Complete Task</button>`;
+                } else if (t.status === 'completed' || t.status === 'archived') {
+                    btnHtml = `<p style="color:var(--success); font-weight:bold; margin-top:0.5rem;">Completed ✅</p>`;
+                }
+
+                div.innerHTML = `
+                    <strong>Task ID:</strong> ${t.task_id.slice(0, 8)}...<br>
+                    <span class="task-status status-${t.status}">${t.status.toUpperCase()}</span>
+                    <br>${btnHtml}
+                `;
+                list.appendChild(div);
+            });
+
+            if (list.innerHTML === '') list.innerHTML = '<p>No tasks available.</p>';
+        }
+
+        async function acceptTask(taskId) {
+            try {
+                await fetch(BASE_URL + '/api/accept/' + taskId, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cleaner_id: currentUser.username })
+                });
+                alert("Task accepted!");
+                loadCleanerTasks();
+            } catch (e) {
+                alert("Error accepting task.");
+            }
+        }
+
+        function showCompleteForm(taskId) {
+            document.getElementById('activeTaskId').value = taskId;
+            document.getElementById('activeTaskLabel').innerText = `Task ID: ${taskId.slice(0, 8)}...`;
+
+            // Reset the form state for this new task
+            document.getElementById('completeForm').reset();
+            document.getElementById('verifyResult').classList.add('hidden');
+            document.getElementById('finalSubmitBtn').classList.add('hidden');
+            document.getElementById('cleanerLocationStatus').innerText = "📍 Location: Not captured yet";
+            document.getElementById('cleanerLat').value = "";
+            document.getElementById('cleanerLon').value = "";
+
+            document.getElementById('completeTaskFormCard').classList.remove('hidden');
+        }
+
+        function cancelComplete() {
+            document.getElementById('completeTaskFormCard').classList.add('hidden');
+            document.getElementById('completeForm').reset();
+        }
+
+        async function handleVerify(e) {
+            e.preventDefault();
+            const lat = document.getElementById('cleanerLat').value;
+            const lon = document.getElementById('cleanerLon').value;
+            const fileInput = document.getElementById('afterImage');
+            const taskId = document.getElementById('activeTaskId').value;
+
+            if (!lat || !lon) {
+                alert("Please get your current location first!");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('cleaner_lat', lat);
+            formData.append('cleaner_lon', lon);
+            formData.append('after_image', fileInput.files[0]);
+
+            document.getElementById('verifyBtn').classList.add('loading');
+            document.getElementById('verifyBtn').innerText = 'Verifying...';
+            document.getElementById('verifyResult').classList.add('hidden');
+            document.getElementById('finalSubmitBtn').classList.add('hidden');
+
+            try {
+                const res = await fetch(BASE_URL + '/api/verify/' + taskId, { method: 'POST', body: formData });
+                const data = await res.json();
+
+                const resultDiv = document.getElementById('verifyResult');
+                resultDiv.classList.remove('hidden');
+
+                if (data.error) {
+                    resultDiv.className = "alert alert-danger";
+                    resultDiv.innerHTML = `Error: ${data.error}`;
+                } else if (data.verified) {
+                    resultDiv.className = "alert alert-success";
+                    resultDiv.innerHTML = `Verification Successful! ✅<br><small>Difference: ${data.difference.toFixed(2)}, Distance: ${data.distance.toFixed(0)}m</small>`;
+                    document.getElementById('finalSubmitBtn').classList.remove('hidden');
+                } else {
+                    resultDiv.className = "alert alert-danger";
+                    resultDiv.innerHTML = `Verification Failed ❌<br><small>Difference: ${data.difference.toFixed(2)}, Distance: ${data.distance.toFixed(0)}m</small><br>Please take a better photo or move closer.`;
+                }
+            } catch (err) {
+                alert("Error verifying.");
+            } finally {
+                document.getElementById('verifyBtn').classList.remove('loading');
+                document.getElementById('verifyBtn').innerText = 'Verify Cleaning';
+            }
+        }
+
+        async function submitFinalTask() {
+            const taskId = document.getElementById('activeTaskId').value;
+            try {
+                const res = await fetch(BASE_URL + '/api/complete/' + taskId, { method: 'POST' });
+                const data = await res.json();
+                alert(data.message);
+                cancelComplete();
+                loadCleanerTasks();
+            } catch (e) {
+                alert("Error finalizing task.");
+            }
+        }
+    </script>
+</body>
+
+</html>
